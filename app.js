@@ -14,10 +14,10 @@ const app = express();
 app.use(cors());
 app.use(compression());
 app.set("trust proxy");
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/sitemap.xml', function (req, res) {
+app.get('api/sitemap.xml', function (req, res) {
     res.sendFile(path.resolve(__dirname, "../frontend/public", "sitemap.xml"));
 });
 
