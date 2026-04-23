@@ -12,7 +12,7 @@ const FaqSchema = new mongoose.Schema({
     category:{
         type:String,
         default:"About"
-    }
+    },
 },
 {
     toJSON: { virtuals: true },

@@ -5,9 +5,11 @@ const catchAsync = require('../util/catchAsync.js');
 const AppError = require('../util/appError');
 const Testimonial = require('../model/Testimonial.js');
 const Faq = require('../model/Faq.js');
+const FaqCategory = require("../model/FaqCategory.js")
 const Office = require('../model/Office.js');
 const Mailer = require('../mailer.js');
 const { isValidObjectId, default: mongoose } = require('mongoose');
+
 
 
 // create Page 
@@ -375,33 +377,88 @@ exports.getTestimonialById = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteTestimonial = catchAsync(async (req, res, next) => {
-    try {
 
-        const id = req.params.id;
-        const testimonial = await Testimonial.findByIdAndDelete(id);
+    const id = req.params.id;
+    console.log("ID length:", req.params.id);
 
-        res.status(201).json({
-            status: 'success',
-            data: {
-                message: 'delete contect forme'
-            }
-        })
+    const testimonial = await Testimonial.findOneAndDelete({ id: id });
 
+    console.log(testimonial)
 
-    } catch (error) {
-        res.status(501).json({
-            status: 'fail',
-            data: {
-                message: error.message
-            }
-        })
+    if (!testimonial) {
+        return res.status(404).json({
+            status: "fail",
+            message: "Testimonial not found"
+        });
     }
-})
 
+    res.status(200).json({
+        status: "success",
+        message: "Testimonial deleted successfully"
+    });
+
+});
 
 // Testimonial controller start ****************************************************************************
 
 // add testimonial 
+
+
+exports.addFaqcategory = catchAsync(async (req, res, next) => {
+
+    const { category, password } = req.query;
+
+    if (password !== "manishji") {
+        return res.status(401).json({
+            status: "fail",
+            message: "Unauthorized"
+        });
+    }
+
+    if (!category) {
+        return res.status(400).json({
+            status: "fail",
+            message: "Category is required"
+        });
+    }
+
+    const exists = await FaqCategory.findOne({ name: category });
+
+    if (exists) {
+        return res.status(400).json({
+            status: "fail",
+            message: "Category already exists"
+        });
+    }
+
+    const newCategory = await FaqCategory.create({
+        name: category
+    });
+
+    res.status(201).json({
+        status: "success",
+        data: {
+            category: newCategory,
+            message: "FAQ category added"
+        }
+    });
+
+});
+
+exports.getAllFaqCategory = catchAsync(async (req, res, next) => {
+
+    const categories = await FaqCategory.find().select("name");
+
+    res.status(200).json({
+        status: "success",
+        data: {
+            category: categories.map(c => c.name),
+            message: "get all faq category"
+        }
+    });
+
+});
+
 
 exports.addFaq = catchAsync(async (req, res, next) => {
 
@@ -550,4 +607,6 @@ exports.deleteOffice = catchAsync(async (req, res, next) => {
         })
     }
 })
+
+
 

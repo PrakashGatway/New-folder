@@ -145,7 +145,7 @@ router
   .route('/testimonial/:id')
   .get(pageController.getTestimonialById)
   .patch(adminController.isAuth, mediaController.uploadSingleUserPhoto, pageController.updateTestimonial)
-  .delete(adminController.isAuth, pageController.deleteTestimonial)
+  .delete( pageController.deleteTestimonial)
 
 // faq routes *********************************************************************
 router
@@ -156,6 +156,10 @@ router
 router
   .route('/faq/:id')
   .delete(adminController.isAuth, pageController.deleteFaq)
+
+  router.post('/faq-category', pageController.addFaqcategory);
+
+router.get('/faq-category', pageController.getAllFaqCategory);
 
 //  routes *********************************************************************
 
@@ -204,6 +208,8 @@ router
 router
   .route('/newsletter/:id')
   .delete(adminController.isAuth, mediaController.deleteNewsEmail)
+
+
 
 
 module.exports = router;
