@@ -37,6 +37,10 @@ const blogSchema = new mongoose.Schema({
         type: String,
         default: "Admin"
     },
+    viewCount: {
+        type: Number,
+        default: 0
+    },
     review: [
         {
             name: String,

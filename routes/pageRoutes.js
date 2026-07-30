@@ -119,6 +119,26 @@ router
   .route('/blog/:id')
   .get(blogController.getSigleblog)
 
+  router
+  .route('/blog/:id/view')
+  .patch(blogController.incrementBlogView);
+
+  
+  // Blog Comment Routes ******************************************************
+
+// Create comment or reply
+router
+  .route('/comment')
+  .post(blogController.createComment);
+
+// Get all comments for a particular blog
+router
+  .route('/comment/blog/:blogId')
+  .get(blogController.getBlogComments);
+
+
+
+
 router
   .route('/edit-blog/:id')
   .get(blogController.GetSigleBlogForEdit)

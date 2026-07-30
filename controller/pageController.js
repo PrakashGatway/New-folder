@@ -404,46 +404,97 @@ exports.deleteTestimonial = catchAsync(async (req, res, next) => {
 // add testimonial 
 
 
-exports.addFaqcategory = catchAsync(async (req, res, next) => {
+exports.addFaqcategory =
+    catchAsync(
+        async (req, res, next) => {
 
-    const { category, password } = req.query;
+            let {
+                category,
+                password
+            } = req.query;
 
-    if (password !== "manishji") {
-        return res.status(401).json({
-            status: "fail",
-            message: "Unauthorized"
-        });
-    }
+            if (
+                password !== "manishji"
+            ) {
 
-    if (!category) {
-        return res.status(400).json({
-            status: "fail",
-            message: "Category is required"
-        });
-    }
+                return res.status(401)
+                    .json({
 
-    const exists = await FaqCategory.findOne({ name: category });
+                        status: "fail",
 
-    if (exists) {
-        return res.status(400).json({
-            status: "fail",
-            message: "Category already exists"
-        });
-    }
+                        message:
+                            "Unauthorized"
 
-    const newCategory = await FaqCategory.create({
-        name: category
-    });
+                    });
 
-    res.status(201).json({
-        status: "success",
-        data: {
-            category: newCategory,
-            message: "FAQ category added"
+            }
+
+            if (!category) {
+
+                return res.status(400)
+                    .json({
+
+                        status: "fail",
+
+                        message:
+                            "Category is required"
+
+                    });
+
+            }
+
+            // lowercase
+            category =
+                category
+                    .trim()
+                    .toLowerCase();
+
+            const exists =
+                await FaqCategory.findOne({
+
+                    name: category
+
+                });
+
+            if (exists) {
+
+                return res.status(400)
+                    .json({
+
+                        status: "fail",
+
+                        message:
+                            "Category already exists"
+
+                    });
+
+            }
+
+            const newCategory =
+                await FaqCategory.create({
+
+                    name: category
+
+                });
+
+            res.status(201).json({
+
+                status: "success",
+
+                data: {
+
+                    category:
+                        newCategory,
+
+                    message:
+                        "FAQ category added"
+
+                }
+
+            });
+
         }
-    });
-
-});
+    );
 
 exports.getAllFaqCategory = catchAsync(async (req, res, next) => {
 

@@ -2,6 +2,7 @@ const Blog = require('../model/Blog.js');
 const catchAsync = require('../util/catchAsync.js');
 const AppError = require('../util/appError');
 const { default: mongoose } = require('mongoose');
+const Comment = require('../model/Comment.js');
 
 
 
@@ -91,6 +92,45 @@ exports.getSigleblog = catchAsync(async (req, res, next) => {
     }
   })
 });
+
+
+exports.incrementBlogView = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+   
+   
+
+    const blog = await Blog.findOneAndUpdate(
+      { Slug: id },
+      { $inc: { viewCount: 1 } },
+      { new: true }
+    );
+
+    if (!blog) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Blog not found",
+      });
+    }
+
+
+
+    return res.status(200).json({
+      status: "success",
+      data: {
+        viewCount: blog.viewCount,
+      },
+    });
+  } catch (error) {
+    console.error("VIEW COUNT ERROR:", error);
+
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
 
 exports.GetSigleBlogForEdit = catchAsync(async (req, res, next) => {
   const id = req.params.id;
@@ -213,6 +253,79 @@ const getLatestBlogs = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+
+
+exports.createComment = catchAsync(async (req, res, next) => {
+  const { blogId, content, parentComment, name } = req.body;
+
+  if (!blogId || !content) {
+    return res.status(400).json({
+      status: "fail",
+      message: "Blog and comment are required",
+    });
+  }
+
+  const comment = await Comment.create({
+    blog: blogId,
+
+    author: {
+      name: name || "Anonymous",
+      userId: req.user?._id || null,
+    },
+
+    content,
+
+    parentComment: parentComment || null,
+  });
+
+  res.status(201).json({
+    status: "success",
+    data: {
+      comment,
+    },
+  });
+});
+
+exports.getBlogComments = catchAsync(async (req, res, next) => {
+  const { blogId } = req.params;
+
+  const comments = await Comment.find({
+    blog: blogId,
+    parentComment: null,
+    status: "approved",
+  })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const commentIds = comments.map((comment) => comment._id);
+
+  const replies = await Comment.find({
+    parentComment: { $in: commentIds },
+    status: "approved",
+  })
+    .sort({ createdAt: 1 })
+    .lean();
+
+  const result = comments.map((comment) => ({
+    ...comment,
+
+    nestedReplies: replies.filter(
+      (reply) =>
+        reply.parentComment.toString() === comment._id.toString()
+    ),
+  }));
+
+  res.status(200).json({
+    status: "success",
+    results: result.length,
+    data: {
+      comments: result,
+    },
+  });
+});
+
+
 
 exports.getAllblogPaginated = catchAsync(async (req, res, next) => {
   // Get page and limit from query params or set default values

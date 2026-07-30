@@ -28,6 +28,11 @@ app.use('/api/v1', pageRouter);
 app.use('/api/v1/auth', adminRouter);
 app.use('/api/v1/preferences', preferenceRoutes);
 app.use('/api/v1/users', userRoutes);
+app.get("/check", (req, res) => {
+  res.send("Backend is running successfully");
+});
+   
+
 
 
 app.use(errorHandler);
